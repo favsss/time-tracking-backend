@@ -21,7 +21,7 @@ class UserType(str, Enum):
 
 class UserBase(BaseModel):
     username: str 
-    type: UserType = UserType.REGULAR
+    type: Optional[UserType] = UserType.REGULAR
 
 class UserCreate(UserBase):
     password: str 

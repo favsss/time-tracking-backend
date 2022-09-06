@@ -6,7 +6,7 @@ from sqlalchemy_utils import create_database, database_exists
 from app.sql import schemas
 from ..sql.database import Base
 from ..dependencies import get_db
-from ..sql.crud import create_tag
+from ..sql.crud import create_tag, create_user
 from sqlalchemy.orm import Session
 from app.main import app 
 
@@ -47,3 +47,8 @@ def client(db):
 def tags(db):
     create_tag(db, schemas.TagCreate(name="project-x"))
     create_tag(db, schemas.TagCreate(name="project-y"))
+
+@pytest.fixture
+def users(db):
+    create_user(db, schemas.UserCreate(username="applemab", password="biniapple1234"))
+    create_user(db, schemas.UserCreate(username="joerizaw", password="rizalw123"))

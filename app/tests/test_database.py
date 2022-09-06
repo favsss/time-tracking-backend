@@ -94,3 +94,84 @@ def test_delete_nonexistent_tag(db, tags):
     response = client.delete(f"/tags/{invalid_id}")
 
     assert status.HTTP_404_NOT_FOUND == response.status_code
+
+def test_get_users(db, users):
+    client = TestClient(app)
+
+    response = client.get("/users")
+
+    assert status.HTTP_200_OK == response.status_code
+    assert 2 == len(response.json())
+
+def test_get_user(db, users):
+    username = "applemab"
+    user = crud.get_user_by_username(db, username)
+
+    client = TestClient(app)
+
+    response = client.get(f"/users/{user.id}")
+
+    assert status.HTTP_200_OK == response.status_code
+    assert username == response.json()["username"] 
+
+def test_get_user_does_not_exist(db, users):
+    invalid_id = -1
+
+    client = TestClient(app)
+
+    response = client.get(f"/users/{invalid_id}")
+
+    assert status.HTTP_404_NOT_FOUND == response.status_code
+
+def test_create_user(db, users):
+    username = "andybon"
+    password = "pacio1345"
+    user_type = "Regular"
+
+    client = TestClient(app)
+
+    response = client.post("/users/", json={
+        "username": username,
+        "password": password
+    })
+
+    assert status.HTTP_200_OK == response.status_code
+
+    data = response.json()
+
+    assert username == data["username"]
+    assert user_type == data["type"]
+
+def test_create_user_duplicate(db, users):
+    username = "applemab"
+    password = "pacio1134"
+    
+    client = TestClient(app)
+
+    response = client.post("/users/", json={
+        "username" : username,
+        "password" : password
+    })
+
+    assert status.HTTP_400_BAD_REQUEST == response.status_code
+
+def test_delete_user(db, users):
+    user = crud.get_user_by_username(db, "applemab")
+
+    client = TestClient(app)
+
+    response = client.delete(f"/users/{user.id}")
+
+    assert status.HTTP_200_OK == response.status_code
+
+    response = client.get("/users")
+    assert 1 == len(response.json())
+
+def test_delete_user_does_not_exist(db, users):
+    invalid_id = -1
+
+    client = TestClient(app)
+
+    response = client.delete(f"/users/{invalid_id}")
+
+    assert status.HTTP_404_NOT_FOUND == response.status_code

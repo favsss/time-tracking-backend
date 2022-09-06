@@ -1,8 +1,7 @@
-from msilib import schema
-from pyexpat import model
-from unicodedata import name
 from sqlalchemy.orm import Session
 from . import models, schemas
+from passlib.context import CryptContext
+
 
 def get_tag(db: Session, tag_id: int):
     return db.query(models.Tag).filter(models.Tag.id == tag_id).first() 
@@ -34,3 +33,35 @@ def delete_tag(db: Session, tag_id: int):
     db.query(models.Tag).filter(models.Tag.id == tag_id).delete()
     db.commit()
     return { "success" : True }
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def get_password_hash(password: str):
+    return pwd_context.hash(password)
+
+def create_user(db: Session, user: schemas.UserCreate):
+    db_user = models.User(
+        username=user.username,
+        password=get_password_hash(user.password),
+        type=user.type
+    )
+
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def get_users(db: Session):
+    return db.query(models.User).all()
+
+def get_user(db: Session, user_id: int):
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
+def get_user_by_username(db: Session, username: str):
+    return db.query(models.User).filter(models.User.username == username).first()
+
+def delete_user(db: Session, user_id: int):
+    db.query(models.User).filter(models.User.id == user_id).delete()
+    db.commit()
+    return { "success" : True }
+
