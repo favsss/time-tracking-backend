@@ -19,3 +19,11 @@ def get_checkins(user: schemas.User = Depends(get_current_user), db: Session = D
 @router.get("/{checkin_id}", response_model=schemas.Checkin)
 def get_checkin(checkin: schemas.Checkin = Depends(valid_checkin)):
     return checkin
+
+@router.post("", response_model=schemas.Checkin)
+def create_checkin(checkin: schemas.CheckinCreate, user: schemas.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return crud.create_checkin(db, user.id, checkin)
+
+@router.delete("/{checkin_id}")
+def delete_checkin(checkin: schemas.Checkin = Depends(valid_checkin), db: Session = Depends(get_db)):
+    return crud.delete_checkin(db, checkin.id)

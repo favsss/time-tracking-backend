@@ -177,22 +177,6 @@ def test_delete_user_does_not_exist(db, users):
 
     assert status.HTTP_404_NOT_FOUND == response.status_code
 
-
-def test_token(db, users):
-    credentials = {
-        "username" : "applemab",
-        "password" : "biniapple1234"
-    }
-
-    client = TestClient(app)
-
-    response = client.post("/token", data={
-        "username" : credentials["username"],
-        "password" : credentials["password"]
-    })
-
-    print(response.json())
-
 def test_get_checkins(db, checkins):
     credentials = {
         "username" : "applemab",
@@ -291,3 +275,34 @@ def test_get_checkin_unauthorized_user(db, checkins):
     })
 
     assert status.HTTP_401_UNAUTHORIZED == response.status_code
+
+def test_delete_checkin(db, checkins):
+    user = crud.get_user_by_username(db, "applemab")
+
+    credentials = {
+        "username" : "applemab",
+        "password" : "biniapple1234"
+    }
+
+    client = TestClient(app)
+
+    response = client.post("/token", data={
+        "username" : credentials["username"],
+        "password" : credentials["password"]
+    })
+
+    token = response.json()["access_token"]
+
+    checkins = crud.get_checkins(db, user.id)
+    id = checkins[0].id
+
+    response = client.delete(f"/checkins/{id}", headers={
+        "Authorization" : f"Bearer {token}"
+    })
+
+    assert status.HTTP_200_OK == response.status_code
+
+    latest_checkins = crud.get_checkins(db, user.id)
+    assert 0 == len(latest_checkins)
+
+    

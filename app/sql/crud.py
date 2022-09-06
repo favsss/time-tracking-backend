@@ -104,3 +104,8 @@ def create_checkin(db: Session, user_id: int, checkin: schemas.CheckinCreate):
     db.refresh(db_checkin)
     return db_checkin
 
+def delete_checkin(db: Session, checkin_id: int):
+    db.query(models.Checkin).filter(models.Checkin.id == checkin_id).delete()
+    db.commit()
+    return { "success" : True }
+
