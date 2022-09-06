@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, Float, ForeignKey, Integer, String, text
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, text
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -28,7 +28,7 @@ class Checkin(Base):
     tag_id = Column(ForeignKey('tags.id'))
     activity = Column(String(255))
     hours = Column(Float(53))
-    creation_date = Column(Date)
+    creation_date = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
 
     tag = relationship('Tag')
     user = relationship('User')

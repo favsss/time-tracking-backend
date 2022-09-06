@@ -1,3 +1,5 @@
+from pyexpat import model
+from tabnanny import check
 from sqlalchemy.orm import Session
 from . import models, schemas
 from passlib.context import CryptContext
@@ -73,4 +75,32 @@ def delete_user(db: Session, user_id: int):
     db.query(models.User).filter(models.User.id == user_id).delete()
     db.commit()
     return { "success" : True }
+
+def get_checkins(db: Session, user_id: int):
+    return db.query(models.Checkin).filter(models.Checkin.user_id == user_id).all()
+
+def get_checkin(db: Session, checkin_id: int):
+    return db.query(models.Checkin).filter(models.Checkin.id == checkin_id).first()
+
+def create_checkin(db: Session, user_id: int, checkin: schemas.CheckinCreate):
+    tag = checkin.tag.lower()
+    db_tag = get_tag_by_name(db, tag)
+    tag_id = None
+    if db_tag is None:
+        new_db_tag = create_tag(db, schemas.TagCreate(name=tag))
+        tag_id = new_db_tag.id
+    else:
+        tag_id = db_tag.id
+
+    db_checkin = models.Checkin(
+        user_id=user_id,
+        tag_id=tag_id,
+        activity=checkin.activity,
+        hours=checkin.hours
+    )
+
+    db.add(db_checkin)
+    db.commit()
+    db.refresh(db_checkin)
+    return db_checkin
 

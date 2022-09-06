@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union
 from pydantic import BaseModel
 from enum import Enum
@@ -37,9 +37,7 @@ class CheckinBase(BaseModel):
     activity: str
 
 class CheckinCreate(CheckinBase):
-    user_id: Optional[int]
-    creation_date: datetime = datetime.now
-    tag: str 
+    tag: str
 
 class Checkin(CheckinBase):
     id: int 

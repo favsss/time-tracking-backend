@@ -1,7 +1,8 @@
+from re import M
 from fastapi.testclient import TestClient
 from fastapi import status
 from app.main import app
-from app.sql import crud
+from app.sql import crud, schemas
 
 def test_get_tags(tags):
     client = TestClient(app)
@@ -175,3 +176,118 @@ def test_delete_user_does_not_exist(db, users):
     response = client.delete(f"/users/{invalid_id}")
 
     assert status.HTTP_404_NOT_FOUND == response.status_code
+
+
+def test_token(db, users):
+    credentials = {
+        "username" : "applemab",
+        "password" : "biniapple1234"
+    }
+
+    client = TestClient(app)
+
+    response = client.post("/token", data={
+        "username" : credentials["username"],
+        "password" : credentials["password"]
+    })
+
+    print(response.json())
+
+def test_get_checkins(db, checkins):
+    credentials = {
+        "username" : "applemab",
+        "password" : "biniapple1234"
+    }
+
+    client = TestClient(app)
+
+    response = client.post("/token", data={
+        "username" : credentials["username"],
+        "password" : credentials["password"]
+    })
+
+    data = response.json()
+    token = data["access_token"]
+
+    response = client.get("/checkins", headers={
+        "Authorization" : f"Bearer {token}"
+    })
+
+    assert status.HTTP_200_OK == response.status_code
+    assert 1 == len(response.json())
+
+def test_get_checkin(db, checkins):
+    user = crud.get_user_by_username(db, "applemab")
+
+    credentials = {
+        "username" : "applemab",
+        "password" : "biniapple1234"
+    }
+
+    client = TestClient(app)
+
+    response = client.post("/token", data={
+        "username" : credentials["username"],
+        "password" : credentials["password"]
+    })
+
+    token = response.json()["access_token"]
+
+    db_checkin = crud.create_checkin(db, user.id, schemas.CheckinCreate(hours=4.5, activity="debugging", tag="project-x"))
+
+    response = client.get(f"/checkins/{db_checkin.id}", headers={
+        "Authorization" : f"Bearer {token}"
+    })
+
+    assert status.HTTP_200_OK == response.status_code
+
+    data = response.json()
+
+    assert 4.5 == data["hours"] 
+    assert "debugging" == data["activity"]
+
+def test_get_checkin_checkin_does_not_exist(db, checkins):
+    credentials = {
+        "username" : "applemab",
+        "password" : "biniapple1234"
+    }
+
+    client = TestClient(app)
+
+    response = client.post("/token", data={
+        "username" : credentials["username"],
+        "password" : credentials["password"]
+    })
+
+    token = response.json()["access_token"]
+    invalid_id = -1
+
+    response = client.get(f"/checkins/{invalid_id}", headers={
+        "Authorization" : f"Bearer {token}"
+    })
+
+    assert status.HTTP_400_BAD_REQUEST == response.status_code
+
+def test_get_checkin_unauthorized_user(db, checkins):
+    user = crud.get_user_by_username(db, "joerizaw")
+
+    credentials = {
+        "username" : "applemab",
+        "password" : "biniapple1234"
+    }
+
+    client = TestClient(app)
+
+    response = client.post("/token", data={
+        "username" : credentials["username"],
+        "password" : credentials["password"]
+    })
+
+    token = response.json()["access_token"]
+    db_checkin = crud.create_checkin(db, user.id, schemas.CheckinCreate(hours=4.5, activity="debugging", tag="project-x"))
+
+    response = client.get(f"/checkins/{db_checkin.id}", headers={
+        "Authorization" : f"Bearer {token}"
+    })
+
+    assert status.HTTP_401_UNAUTHORIZED == response.status_code

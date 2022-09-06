@@ -6,7 +6,7 @@ from sqlalchemy_utils import create_database, database_exists
 from app.sql import schemas
 from ..sql.database import Base
 from ..dependencies import get_db
-from ..sql.crud import create_tag, create_user
+from ..sql.crud import create_checkin, create_tag, create_user
 from sqlalchemy.orm import Session
 from app.main import app 
 
@@ -52,3 +52,10 @@ def tags(db):
 def users(db):
     create_user(db, schemas.UserCreate(username="applemab", password="biniapple1234"))
     create_user(db, schemas.UserCreate(username="joerizaw", password="rizalw123"))
+
+@pytest.fixture 
+def checkins(db):
+    db_user = create_user(db, schemas.UserCreate(username="applemab", password="biniapple1234"))
+    create_user(db, schemas.UserCreate(username="joerizaw", password="joerizaw"))
+    create_tag(db, schemas.TagCreate(name="project-x"))
+    create_checkin(db, db_user.id, schemas.CheckinCreate(hours=5.5, activity="debugging", tag="project-x"))
