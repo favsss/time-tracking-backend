@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 from pydantic import BaseModel
 from enum import Enum
 
@@ -49,5 +49,11 @@ class Checkin(CheckinBase):
 
     class Config:
         orm_mode = True
+
+class Token(BaseModel):
+    access_token: str 
+    token_type: str
     
 
+class TokenData(BaseModel):
+    username: Union[str, None] = None
