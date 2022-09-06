@@ -56,6 +56,6 @@ def users(db):
 @pytest.fixture 
 def checkins(db):
     db_user = create_user(db, schemas.UserCreate(username="applemab", password="biniapple1234"))
-    create_user(db, schemas.UserCreate(username="joerizaw", password="joerizaw"))
+    create_user(db, schemas.UserCreate(username="joerizaw", password="rizalw123"))
     create_tag(db, schemas.TagCreate(name="project-x"))
     create_checkin(db, db_user.id, schemas.CheckinCreate(hours=5.5, activity="debugging", tag="project-x"))
