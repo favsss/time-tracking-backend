@@ -1,8 +1,20 @@
+from unicodedata import name
 from sqlalchemy.orm import Session
 from . import models, schemas
 
 def get_tag(db: Session, tag_id: int):
-    pass 
+    return db.query(models.Tag).filter(models.Tag.id == tag_id).first() 
 
-def get_tag_by_name(db: Session, tag_name: int):
-    pass 
+def get_tag_by_name(db: Session, tag_name: str):
+    return db.query(models.Tag).filter(models.Tag.name == tag_name.lower()).first() 
+
+def get_tags(db: Session):
+    return db.query(models.Tag).all()
+
+def create_tag(db: Session, tag: schemas.TagCreate):
+    db_tag = models.Tag(name=tag.name.lower())
+    db.add(db_tag)
+    db.commit()
+    db.refresh(db_tag)
+
+    return db_tag

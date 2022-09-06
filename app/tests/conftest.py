@@ -2,8 +2,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine 
 from sqlalchemy_utils import create_database, database_exists
+
+from app.sql import schemas
 from ..sql.database import Base
 from ..dependencies import get_db
+from ..sql.crud import create_tag
 from sqlalchemy.orm import Session
 from app.main import app 
 
@@ -39,3 +42,8 @@ def client(db):
 
     with TestClient(app) as c:
         yield c
+
+@pytest.fixture
+def tags(db):
+    create_tag(db, schemas.TagCreate(name="project-x"))
+    create_tag(db, schemas.TagCreate(name="project-y"))
