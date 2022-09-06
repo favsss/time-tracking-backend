@@ -1,5 +1,7 @@
 from .sql import models, schemas, crud
 from .sql.database import SessionLocal, engine
+from sqlalchemy.orm.session import Session
+from fastapi import Depends, HTTPException, status
 
 models.Base.metadata.create_all(engine)
 
@@ -9,3 +11,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def valid_tag(tag_id: int, db: Session = Depends(get_db)):
+    db_tag = crud.get_tag(db, tag_id)
+    if db_tag is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found")
+
+    return db_tag
