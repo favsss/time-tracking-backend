@@ -43,6 +43,7 @@ class Checkin(CheckinBase):
     id: int 
     user_id: int 
     tag_id: int 
+    tag: Optional[str]
     creation_date: datetime
 
     class Config:

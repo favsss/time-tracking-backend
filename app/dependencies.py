@@ -61,7 +61,7 @@ def valid_checkin(checkin_id: int, db: Session = Depends(get_db), user: schemas.
     if db_checkin is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Checkin does not exist")
     
-    if user.id != db_checkin.user_id:
+    if user.id != db_checkin["user_id"]:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User is not allowed to view this log")
 
     return db_checkin

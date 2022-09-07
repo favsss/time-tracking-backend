@@ -77,10 +77,38 @@ def delete_user(db: Session, user_id: int):
     return { "success" : True }
 
 def get_checkins(db: Session, user_id: int):
-    return db.query(models.Checkin).filter(models.Checkin.user_id == user_id).all()
+    query = db.query(models.Checkin, models.Tag).filter(models.Checkin.tag_id == models.Tag.id).filter(models.Checkin.user_id == user_id).all()
+    checkins = []
+    
+    for c, t in query:
+        checkins.append({
+            "id" : c.id,
+            "user_id" : c.user_id,
+            "tag_id" : c.tag_id,
+            "tag" : t.name,
+            "hours" : c.hours,
+            "activity" : c.activity,
+            "creation_date" : c.creation_date
+        })
+
+    return checkins
 
 def get_checkin(db: Session, checkin_id: int):
-    return db.query(models.Checkin).filter(models.Checkin.id == checkin_id).first()
+    db_checkin = db.query(models.Checkin).filter(models.Checkin.id == checkin_id).first()
+    if db_checkin is None:
+        return None
+
+    # needed to complete the data
+    db_tag = get_tag(db, db_checkin.tag_id)
+    return {
+        "id" : db_checkin.__dict__["id"],
+        "user_id" : db_checkin.__dict__["user_id"],
+        "tag_id" : db_checkin.__dict__["tag_id"],
+        "tag" : db_tag.__dict__["name"],
+        "activity" : db_checkin.__dict__["activity"],
+        "hours" : db_checkin.__dict__["hours"],
+        "creation_date" : db_checkin.__dict__["creation_date"]
+    }
 
 def create_checkin(db: Session, user_id: int, checkin: schemas.CheckinCreate):
     tag = checkin.tag.lower()
@@ -102,7 +130,18 @@ def create_checkin(db: Session, user_id: int, checkin: schemas.CheckinCreate):
     db.add(db_checkin)
     db.commit()
     db.refresh(db_checkin)
-    return db_checkin
+
+    db_tag = db.query(models.Tag).filter(models.Tag.id == db_checkin.tag_id).first()
+
+    return {
+        "id" : db_checkin.id,
+        "user_id" : db_checkin.user_id,
+        "tag_id" : db_checkin.tag_id,
+        "tag" : db_tag.__dict__["name"],
+        "activity" : db_checkin.activity,
+        "hours" : db_checkin.hours,
+        "creation_date" : db_checkin.creation_date
+    }
 
 def delete_checkin(db: Session, checkin_id: int):
     db.query(models.Checkin).filter(models.Checkin.id == checkin_id).delete()

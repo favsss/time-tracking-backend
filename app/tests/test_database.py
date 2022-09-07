@@ -1,4 +1,3 @@
-from re import M
 from fastapi.testclient import TestClient
 from fastapi import status
 from app.main import app
@@ -219,7 +218,7 @@ def test_get_checkin(db, checkins):
 
     db_checkin = crud.create_checkin(db, user.id, schemas.CheckinCreate(hours=4.5, activity="debugging", tag="project-x"))
 
-    response = client.get(f"/checkins/{db_checkin.id}", headers={
+    response = client.get(f"/checkins/{db_checkin['id']}", headers={
         "Authorization" : f"Bearer {token}"
     })
 
@@ -270,7 +269,7 @@ def test_get_checkin_unauthorized_user(db, checkins):
     token = response.json()["access_token"]
     db_checkin = crud.create_checkin(db, user.id, schemas.CheckinCreate(hours=4.5, activity="debugging", tag="project-x"))
 
-    response = client.get(f"/checkins/{db_checkin.id}", headers={
+    response = client.get(f"/checkins/{db_checkin['id']}", headers={
         "Authorization" : f"Bearer {token}"
     })
 
@@ -294,7 +293,7 @@ def test_delete_checkin(db, checkins):
     token = response.json()["access_token"]
 
     checkins = crud.get_checkins(db, user.id)
-    id = checkins[0].id
+    id = checkins[0]['id']
 
     response = client.delete(f"/checkins/{id}", headers={
         "Authorization" : f"Bearer {token}"
