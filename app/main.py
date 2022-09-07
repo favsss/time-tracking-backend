@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 origins = [
-    "http://localhost:8080"
+    "http://localhost:8080",
+    "https://unique-mermaid-1547ba.netlify.app"
 ]
 
 app.add_middleware(
