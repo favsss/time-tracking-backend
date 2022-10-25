@@ -10,7 +10,7 @@ router = APIRouter(
     tags=["tags"]
 )
 
-@router.get("/")
+@router.get("")
 def read_tags(db: Session = Depends(get_db)):
     return crud.get_tags(db)
 

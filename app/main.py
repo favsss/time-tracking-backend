@@ -2,6 +2,7 @@ from tabnanny import check
 from fastapi import FastAPI
 from .routers import tags, users, token, checkins
 from fastapi.middleware.cors import CORSMiddleware
+# from mangum import Mangum
 
 app = FastAPI()
 
@@ -23,6 +24,9 @@ app.include_router(tags.router)
 app.include_router(users.router)
 app.include_router(token.router)
 app.include_router(checkins.router)
+
+# handler = Mangum(app)
+
 
 @app.get("/")
 def root():

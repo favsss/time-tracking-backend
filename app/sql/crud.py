@@ -1,5 +1,3 @@
-from pyexpat import model
-from tabnanny import check
 from sqlalchemy.orm import Session
 from . import models, schemas
 from passlib.context import CryptContext
